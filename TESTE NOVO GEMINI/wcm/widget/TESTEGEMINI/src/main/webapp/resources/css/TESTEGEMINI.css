@@ -1,0 +1,777 @@
+/* ====================================================================
+   Widget: Consulta Avançada de Solicitações de Processos - Fluig
+   Arquivo: TESTEGEMINI.css
+   Garante estilos corporativos padrão Fluig Style Guide / Bootstrap
+   ==================================================================== */
+
+#widgetConsultaSolicitacoes {
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333;
+    margin-top: 10px;
+}
+
+/* Painéis (Cards) */
+#widgetConsultaSolicitacoes .panel {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+#widgetConsultaSolicitacoes .panel-heading {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #444;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+#widgetConsultaSolicitacoes .panel-body {
+    padding: 15px;
+}
+
+/* Formulários, Inputs e Selects */
+#widgetConsultaSolicitacoes .form-group {
+    margin-bottom: 15px;
+}
+
+#widgetConsultaSolicitacoes label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #555;
+}
+
+#widgetConsultaSolicitacoes .form-control {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    box-sizing: border-box;
+}
+
+#widgetConsultaSolicitacoes .form-control:focus {
+    border-color: #66afe9;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+}
+
+#widgetConsultaSolicitacoes .input-group {
+    position: relative;
+    display: table;
+    border-collapse: separate;
+    width: 100%;
+}
+
+#widgetConsultaSolicitacoes .input-group .form-control {
+    position: relative;
+    z-index: 2;
+    float: left;
+    width: 100%;
+    margin-bottom: 0;
+    display: table-cell;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#widgetConsultaSolicitacoes .input-group-addon {
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1;
+    color: #555;
+    text-align: center;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-left: 0;
+    border-radius: 0 4px 4px 0;
+    width: 1%;
+    white-space: nowrap;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+#widgetConsultaSolicitacoes .input-group-btn {
+    position: relative;
+    font-size: 0;
+    white-space: nowrap;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+#widgetConsultaSolicitacoes .checkbox-inline,
+#widgetConsultaSolicitacoes .radio-inline {
+    position: relative;
+    display: inline-block;
+    padding-left: 20px;
+    margin-bottom: 0;
+    font-weight: 400;
+    vertical-align: middle;
+    cursor: pointer;
+    font-size: 13px;
+    color: #444;
+}
+
+#widgetConsultaSolicitacoes .checkbox-inline input[type=checkbox],
+#widgetConsultaSolicitacoes .radio-inline input[type=radio] {
+    position: absolute;
+    margin-top: 2px;
+    margin-left: -20px;
+    cursor: pointer;
+}
+
+/* Botões */
+#widgetConsultaSolicitacoes .btn {
+    display: inline-block;
+    padding: 6px 14px;
+    margin-bottom: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-decoration: none !important;
+}
+
+#widgetConsultaSolicitacoes .btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+#widgetConsultaSolicitacoes .btn-default:hover,
+#widgetConsultaSolicitacoes .btn-default:focus {
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+
+#widgetConsultaSolicitacoes .btn-primary {
+    color: #fff;
+    background-color: #1ea0eb;
+    border-color: #1793d9;
+}
+
+#widgetConsultaSolicitacoes .btn-primary:hover,
+#widgetConsultaSolicitacoes .btn-primary:focus {
+    color: #fff;
+    background-color: #1383c5;
+    border-color: #106ea5;
+}
+
+#widgetConsultaSolicitacoes .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+#widgetConsultaSolicitacoes .btn-xs {
+    padding: 2px 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+#widgetConsultaSolicitacoes .btn-abrir-solicitacao {
+    color: #1ea0eb;
+    border-color: #bee3f8;
+    background-color: #f0f8ff;
+    font-weight: 600;
+}
+
+#widgetConsultaSolicitacoes .btn-abrir-solicitacao:hover {
+    color: #fff;
+    background-color: #1ea0eb;
+    border-color: #1793d9;
+}
+
+#widgetConsultaSolicitacoes .btn-ver-anexos {
+    color: #495057;
+    border-color: #ced4da;
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+#widgetConsultaSolicitacoes .btn-ver-anexos:hover {
+    color: #2b529f;
+    border-color: #b0c4de;
+    background-color: #e9ecef;
+}
+
+#widgetConsultaSolicitacoes th.col-sortable {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#widgetConsultaSolicitacoes th.col-sortable:hover {
+    background-color: #f0f0f0 !important;
+    color: #1ea0eb !important;
+}
+
+#widgetConsultaSolicitacoes th.col-sortable i {
+    margin-left: 4px;
+    font-size: 11px;
+}
+
+#widgetConsultaSolicitacoes .btn:disabled,
+#widgetConsultaSolicitacoes .btn[disabled] {
+    cursor: not-allowed;
+    filter: alpha(opacity=65);
+    box-shadow: none;
+    opacity: .65;
+}
+
+/* Tabelas */
+#widgetConsultaSolicitacoes .table-responsive {
+    min-height: .01%;
+    overflow-x: auto;
+    width: 100%;
+}
+
+#widgetConsultaSolicitacoes table.table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+
+#widgetConsultaSolicitacoes table.table > thead > tr > th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #ddd;
+    padding: 10px 12px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #444;
+    background-color: #fafafa;
+    text-align: left;
+}
+
+#widgetConsultaSolicitacoes table.table > tbody > tr > td {
+    padding: 9px 12px;
+    line-height: 1.42857143;
+    vertical-align: middle;
+    border-top: 1px solid #ddd;
+    font-size: 13px;
+}
+
+#widgetConsultaSolicitacoes table.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+#widgetConsultaSolicitacoes table.table-hover > tbody > tr:hover {
+    background-color: #f1f6fc;
+}
+
+#widgetConsultaSolicitacoes table tbody tr {
+    cursor: pointer;
+}
+
+#widgetConsultaSolicitacoes table tbody tr.linha-selecionada {
+    background-color: #e2eeff !important;
+    font-weight: 600;
+}
+
+/* Badges e Status */
+#widgetConsultaSolicitacoes .badge {
+    display: inline-block;
+    min-width: 10px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1;
+    vertical-align: middle;
+    white-space: nowrap;
+    text-align: center;
+    background-color: #1ea0eb;
+    border-radius: 10px;
+}
+
+#widgetConsultaSolicitacoes .status-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+#widgetConsultaSolicitacoes .status-aberto     { background-color: #f0ad4e; }
+#widgetConsultaSolicitacoes .status-finalizado { background-color: #5cb85c; }
+#widgetConsultaSolicitacoes .status-cancelado  { background-color: #d9534f; }
+
+/* Abas (Nav-Tabs) */
+#widgetConsultaSolicitacoes .nav-tabs {
+    border-bottom: 1px solid #ddd;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+    display: flex;
+}
+
+#widgetConsultaSolicitacoes .nav-tabs > li {
+    margin-bottom: -1px;
+}
+
+#widgetConsultaSolicitacoes .nav-tabs > li > a {
+    display: block;
+    margin-right: 2px;
+    line-height: 1.42857143;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 9px 15px;
+    font-weight: 600;
+    color: #555;
+    text-decoration: none !important;
+    cursor: pointer;
+    background: #fbfbfb;
+}
+
+#widgetConsultaSolicitacoes .nav-tabs > li > a:hover {
+    border-color: #eee #eee #ddd;
+    background-color: #eee;
+}
+
+#widgetConsultaSolicitacoes .nav-tabs > li.active > a,
+#widgetConsultaSolicitacoes .nav-tabs > li.active > a:hover,
+#widgetConsultaSolicitacoes .nav-tabs > li.active > a:focus {
+    color: #1ea0eb;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+}
+
+#widgetConsultaSolicitacoes .tab-content > .tab-pane {
+    display: none;
+}
+
+#widgetConsultaSolicitacoes .tab-content > .active {
+    display: block;
+}
+
+/* Campos de Formulário no Painel de Detalhes */
+.campo-detalhe-item {
+    background: #fdfdfd;
+    border: 1px solid #eaedf1;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    min-height: 60px;
+    word-break: break-word;
+}
+
+.campo-detalhe-item label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #727b84;
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 700;
+}
+
+.campo-detalhe-item span {
+    font-size: 13px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+/* Alertas */
+#widgetConsultaSolicitacoes .alert {
+    padding: 12px 16px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+#widgetConsultaSolicitacoes .alert-info {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+
+#widgetConsultaSolicitacoes .alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+/* Expansor de Linha / Campos do Formulário */
+.btn-toggle-detalhes {
+    color: #1ea0eb;
+    text-decoration: none !important;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-toggle-detalhes:hover {
+    color: #1383c5;
+    background-color: #e8f4fc;
+}
+
+.btn-toggle-detalhes i {
+    font-size: 11px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn-toggle-detalhes.aberto i {
+    transform: rotate(90deg);
+}
+
+.linha-detalhes-campos {
+    background-color: #f8fafc !important;
+}
+
+.linha-detalhes-campos td {
+    padding: 0 !important;
+    border-top: none !important;
+}
+
+.container-campos-formulario {
+    padding: 15px 20px 18px 20px;
+    background: #fdfdfd;
+    border-top: 1px dashed #dbe2e8;
+    border-bottom: 2px solid #cbd5e1;
+    box-shadow: inset 0 3px 6px -3px rgba(0,0,0,0.06);
+}
+
+.cabecalho-campos-formulario {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 6px;
+}
+
+.grid-campos-formulario {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -6px;
+}
+
+.campo-card-grid {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 0 6px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .campo-card-grid {
+        flex: 0 0 33.333%;
+        max-width: 33.333%;
+    }
+}
+
+@media (max-width: 992px) {
+    .campo-card-grid {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (max-width: 600px) {
+    .campo-card-grid {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.campo-card-conteudo {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 8px 12px;
+    height: 100%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    transition: border-color 0.15s ease;
+}
+
+.campo-card-conteudo:hover {
+    border-color: #93c5fd;
+}
+
+.campo-card-conteudo label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #64748b;
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.campo-card-conteudo span {
+    font-size: 12px;
+    color: #1e293b;
+    font-weight: 600;
+    display: block;
+    word-break: break-word;
+}
+
+/* Abas do Painel de Formulário e Iframe */
+.cabecalho-abas-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 12px;
+    padding-bottom: 4px;
+}
+
+.cabecalho-abas-form .nav-tabs-formulario {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav-tabs-formulario .btn-aba-form {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.nav-tabs-formulario .btn-aba-form:hover {
+    color: #1e293b;
+    background-color: #f1f5f9;
+}
+
+.nav-tabs-formulario .btn-aba-form.ativo {
+    color: #0284c7;
+    background-color: #ffffff;
+    border-color: #e2e8f0 #e2e8f0 #ffffff #e2e8f0;
+    border-bottom: 2px solid #0284c7;
+    margin-bottom: -2px;
+}
+
+.acoes-cabecalho-form {
+    display: flex;
+    gap: 8px;
+}
+
+/* Container com corte para isolar apenas o formulário */
+.wrapper-iframe-formulario {
+    width: 100%;
+    height: 780px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.iframe-formulario-fluig {
+    width: calc(100% + 80px);
+    height: calc(100% + 140px);
+    position: absolute;
+    top: -115px;
+    left: -55px;
+    border: none;
+    background-color: #ffffff;
+}
+
+/* Botão Assumir Atividade de Papel/Grupo */
+.btn-assumir-tarefa {
+    background-color: #27ae60 !important;
+    border-color: #219653 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-assumir-tarefa:hover,
+.btn-assumir-tarefa:focus {
+    background-color: #1e824c !important;
+    border-color: #196f3d !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+}
+
+/* Botão Transferir Tarefa Atribuída ao Usuário */
+.btn-transferir-tarefa {
+    background-color: #0284c7 !important;
+    border-color: #0369a1 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-transferir-tarefa:hover,
+.btn-transferir-tarefa:focus {
+    background-color: #0369a1 !important;
+    border-color: #075985 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
+}
+
+.tag-responsavel-papel {
+    display: inline-block;
+    color: #d97706;
+    background-color: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* ====================================================================
+   CORES DE CRITICIDADE DAS LINHAS (ALTA, MEDIA, BAIXA)
+   ==================================================================== */
+
+/* Criticidade ALTA: Vermelho pastel suave */
+#widgetConsultaSolicitacoes table.table > tbody > tr.linha-criticidade-alta {
+    background-color: #fef2f2 !important;
+    border-left: 5px solid #e02424 !important;
+}
+#widgetConsultaSolicitacoes table.table-hover > tbody > tr.linha-criticidade-alta:hover {
+    background-color: #fee2e2 !important;
+}
+#widgetConsultaSolicitacoes table.table > tbody > tr.linha-criticidade-alta.linha-selecionada {
+    background-color: #fecaca !important;
+}
+
+/* Criticidade MEDIA: Amarelo pastel suave no mesmo nível de suavidade */
+#widgetConsultaSolicitacoes table.table > tbody > tr.linha-criticidade-media {
+    background-color: #fefce8 !important;
+    border-left: 5px solid #e3a008 !important;
+}
+#widgetConsultaSolicitacoes table.table-hover > tbody > tr.linha-criticidade-media:hover {
+    background-color: #fef9c3 !important;
+}
+#widgetConsultaSolicitacoes table.table > tbody > tr.linha-criticidade-media.linha-selecionada {
+    background-color: #fde68a !important;
+}
+
+/* Criticidade BAIXA: Verde pastel suave */
+#widgetConsultaSolicitacoes table.table > tbody > tr.linha-criticidade-baixa {
+    background-color: #f0fdf4 !important;
+    border-left: 5px solid #0e9f6e !important;
+}
+#widgetConsultaSolicitacoes table.table-hover > tbody > tr.linha-criticidade-baixa:hover {
+    background-color: #dcfce7 !important;
+}
+#widgetConsultaSolicitacoes table.table > tbody > tr.linha-criticidade-baixa.linha-selecionada {
+    background-color: #bbf7d0 !important;
+}
+
+/* Tags de Criticidade no Papel / Responsável */
+.tag-criticidade {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+}
+.tag-criticidade-alta {
+    background-color: #fde8e8;
+    color: #9b1c1c;
+    border: 1px solid #f8b4b4;
+}
+.tag-criticidade-media {
+    background-color: #fef08a;
+    color: #723b13;
+    border: 1px solid #facc15;
+}
+.tag-criticidade-baixa {
+    background-color: #def7ec;
+    color: #03543f;
+    border: 1px solid #84e1bc;
+}
+
+/* Legenda de criticidades no painel de resultados */
+.legenda-criticidades {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4b5563;
+    background-color: #f9fafb;
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+}
+.item-legenda {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    user-select: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+}
+.item-legenda:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+}
+.indicador-legenda {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+}
+.indicador-legenda.alta {
+    background-color: #e02424;
+}
+.indicador-legenda.media {
+    background-color: #e3a008;
+}
+.indicador-legenda.baixa {
+    background-color: #0e9f6e;
+}
+
