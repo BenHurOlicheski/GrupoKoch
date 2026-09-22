@@ -14,11 +14,15 @@
         urlProcessos: "/process-management/api/v2/processes?pageSize=1000",
 
         // Endpoint de busca de solicitações (instâncias) de um processo específico.
-        // Buscamos sem o parâmetro "state" (o filtro de status é feito no cliente,
-        // ver executarBusca) e já pedimos "requester" expandido para trazer o nome do solicitante.
-        urlSolicitacoes: function (processId) {
-            return "/process-management/api/v2/processes/" + encodeURIComponent(processId) +
-                "/requests?expand=requester&pageSize=1000";
+        urlSolicitacoes: function (processId, statusFilter) {
+            var url = "/process-management/api/v2/processes/" + encodeURIComponent(processId) +
+                "/requests?expand=requester&pageSize=200";
+            
+            // Se tiver pedindo só abertas (0), finalizadas (2) ou canceladas (1), passa pra API pra não travar o Fluig
+            if (statusFilter !== undefined && statusFilter !== null && statusFilter !== "") {
+                url += "&status=" + statusFilter;
+            }
+            return url;
         },
 
         // ÚNICO endpoint de detalhe/histórico — confirmado na documentação oficial
@@ -1225,26 +1229,30 @@
             $.Deferred().resolve([{ items: [] }]);
 
         var requisicaoPrincipal = null;
+        // Identifica se pode passar status pra API pra aliviar
+        var statusParaApi = "";
+        if (statusAbertas && !statusFinalizadas && !statusCanceladas) statusParaApi = "0"; // 0 = OPEN na V2
+        else if (!statusAbertas && statusFinalizadas && !statusCanceladas) statusParaApi = "2"; // 2 = COMPLETED
+        else if (!statusAbertas && !statusFinalizadas && statusCanceladas) statusParaApi = "1"; // 1 = CANCELED
+
         if (isPesquisaExataIdSemProcesso) {
+            // Busca apenas os IDs exatos
             var proms = idsExatosParaBuscar.map(function(id) {
                 return $.ajax({
                     url: "/process-management/api/v2/requests/" + id + "?expand=requester",
                     type: "GET",
                     dataType: "json",
                     headers: { "Accept": "application/json" }
-                }).then(function(res) {
-                    if (res && res.processInstanceId) { return res; }
-                    return null;
                 }).catch(function() { return null; });
             });
             requisicaoPrincipal = $.when.apply($, proms).then(function() {
-                var resultados = Array.prototype.slice.call(arguments);
+                var resultados = Array.prototype.slice.call(arguments).map(function(r) { return r ? r[0] : null; });
                 var validos = resultados.filter(function(r) { return r !== null; });
                 return [{ items: validos }]; 
             });
         } else {
             requisicaoPrincipal = $.ajax({
-                url: CONFIG.urlSolicitacoes(processId),
+                url: CONFIG.urlSolicitacoes(processId, statusParaApi),
                 type: "GET",
                 data: params,
                 dataType: "json",
