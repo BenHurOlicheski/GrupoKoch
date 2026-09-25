@@ -1251,7 +1251,7 @@
                 return [{ items: validos }]; 
             });
         } else {
-            // ==== SOLUÇÃO AVANÇADA MAP-REDUCE: Utiliza o Dataset Fast ====
+            // ==== SOLUÇÃO AVANÇADA MAP-REDUCE ====
             requisicaoPrincipal = $.Deferred();
             try {
                 var c1 = DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST);
@@ -1267,27 +1267,35 @@
                             return;
                         }
 
-                        // Mapeia o retorno do Dataset para o formato que a API V2 entregava,
-                        // para não quebrar o resto do código da Widget!
                         var items = retorno.values.map(function(row) {
-                            // O status precisa voltar ao padrão da API V2 ("OPEN", "CANCELED", "COMPLETED")
                             var apiStatus = "OPEN";
                             if (row.status == "1") apiStatus = "CANCELED";
                             else if (row.status == "2") apiStatus = "COMPLETED";
                             
-                            // Cria objeto simulando o requester expandido
                             var requester = null;
                             if (row.requesterId && row.requesterId !== "null" && row.requesterId !== "") {
                                 requester = { code: row.requesterId, name: row.requesterId };
                             }
 
-                            // Cria o Active Task
-                            var activeTasks = [];
+                            // ATENÇÃO: PREENCHE AS TAREFAS PARA O FRONTEND NÃO FAZER AJAX!
+                            var activeTaskObj = null;
+                            var tasksArray = [];
+                            
                             if (row.taskState && row.taskState !== "" && row.taskState !== "null") {
-                                activeTasks.push({
+                                var assigneeObj = row.assignee && row.assignee !== "null" ? { code: row.assignee, name: row.assignee } : null;
+                                
+                                activeTaskObj = {
+                                    state: { stateDescription: row.taskState, name: row.taskState },
+                                    assignee: assigneeObj
+                                };
+                                
+                                tasksArray.push({
                                     stateId: row.taskState,
                                     choosedSequence: row.taskState,
-                                    assignee: row.assignee && row.assignee !== "null" ? { code: row.assignee, name: row.assignee } : null,
+                                    stateName: row.taskState,
+                                    status: "OPEN",
+                                    active: true,
+                                    assignee: assigneeObj,
                                     deadlineDate: row.deadline && row.deadline !== "null" ? row.deadline : null
                                 });
                             }
@@ -1297,7 +1305,8 @@
                                 startDate: row.startDate !== "null" ? row.startDate : null,
                                 status: apiStatus,
                                 requester: requester,
-                                activeTasks: activeTasks,
+                                activeTask: activeTaskObj,
+                                tasks: tasksArray,
                                 processId: row.processId !== "null" ? row.processId : processId
                             };
                         });
@@ -1305,12 +1314,12 @@
                         requisicaoPrincipal.resolve([{ items: items }]);
                     },
                     error: function(err) {
-                        console.error("[TESTEGEMINI] Erro no DS_PENALIDADES_FAST:", err);
+                        console.error("Erro no DS_PENALIDADES_FAST:", err);
                         requisicaoPrincipal.resolve([{ items: [] }]);
                     }
                 });
             } catch (e) {
-                console.error("[TESTEGEMINI] Exceção ao chamar DS_PENALIDADES_FAST:", e);
+                console.error("Exceção DS_PENALIDADES_FAST:", e);
                 requisicaoPrincipal.resolve([{ items: [] }]);
             }
         }

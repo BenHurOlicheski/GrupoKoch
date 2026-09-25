@@ -8,28 +8,19 @@ function createDataset(fields, constraints, sortFields) {
 
     var cardId = "";
     var cardIdIn = "";
+    var processInstanceIdIn = "";
     
     if (constraints != null) {
         for (var i = 0; i < constraints.length; i++) {
-            if (constraints[i].fieldName == "cardId") {
-                cardId = constraints[i].initialValue;
-            } else if (constraints[i].fieldName == "cardIdIn") {
-                cardIdIn = constraints[i].initialValue;
-            }
+            if (constraints[i].fieldName == "cardId") cardId = constraints[i].initialValue;
+            if (constraints[i].fieldName == "cardIdIn") cardIdIn = constraints[i].initialValue;
+            if (constraints[i].fieldName == "processInstanceIdIn") processInstanceIdIn = constraints[i].initialValue;
         }
     }
 
-    if (cardId == "" && cardIdIn == "") {
-        dataset.addRow(["", "", "cardId ou cardIdIn obrigatorio", "", ""]);
+    if (cardId == "" && cardIdIn == "" && processInstanceIdIn == "") {
+        dataset.addRow(["", "", "cardId, cardIdIn ou processInstanceIdIn obrigatorio", "", ""]);
         return dataset;
-    }
-
-    // Se passou cardIdIn, usa o primeiro ID para descobrir a tabela ML
-    var firstCardId = cardId;
-    var isBulk = false;
-    if (cardIdIn != "") {
-        isBulk = true;
-        firstCardId = cardIdIn.split(",")[0];
     }
 
     var connection = null;
@@ -40,6 +31,35 @@ function createDataset(fields, constraints, sortFields) {
         var context = new javax.naming.InitialContext();
         var dataSource = context.lookup("java:/jdbc/FluigDS");
         connection = dataSource.getConnection();
+
+        // Se passou processInstanceIdIn, descobre os cardIds cruzando ANEXO_PROCES!
+        if (processInstanceIdIn != "") {
+            var safeProcessIds = processInstanceIdIn.replace(/[^0-9,]/g, '');
+            var sqlP = "SELECT NR_DOCUMENTO FROM ANEXO_PROCES WHERE NUM_PROCES IN (" + safeProcessIds + ") AND TP_ANEXO = 0";
+            statement = connection.prepareStatement(sqlP);
+            rs = statement.executeQuery();
+            var arrDocs = [];
+            while(rs.next()) {
+                arrDocs.push(rs.getInt("NR_DOCUMENTO"));
+            }
+            rs.close();
+            statement.close();
+            
+            if (arrDocs.length > 0) {
+                cardIdIn = arrDocs.join(",");
+            } else {
+                dataset.addRow(["", "", "Nenhum formulario encontrado para esses processos", "", ""]);
+                return dataset;
+            }
+        }
+
+        // A partir daqui, cardIdIn tem a lista de formRecordIds
+        var firstCardId = cardId;
+        var isBulk = false;
+        if (cardIdIn != "") {
+            isBulk = true;
+            firstCardId = cardIdIn.split(",")[0];
+        }
         
         // Form records (instances) don't have NM_DATASET. Their parent (the form definition) has it!
         var sql = "SELECT A.COD_EMPRESA, A.NR_DOCUMENTO_PAI, B.NM_DATASET FROM DOCUMENTO A JOIN DOCUMENTO B ON A.NR_DOCUMENTO_PAI = B.NR_DOCUMENTO WHERE A.NR_DOCUMENTO = " + firstCardId;

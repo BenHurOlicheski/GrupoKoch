@@ -21,7 +21,7 @@ function createDataset(fields, constraints, sortFields) {
     }
 
     try {
-        // Fetch workflowProcess
+        // 1. Busca todas as instâncias do processo
         var c1 = DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST);
         var constraintsProcess = [c1];
         if (status != "" && status != null) {
@@ -29,12 +29,12 @@ function createDataset(fields, constraints, sortFields) {
         }
         var dsProcess = DatasetFactory.getDataset("workflowProcess", ["processInstanceId", "requesterId", "startDate", "status", "processId"], constraintsProcess, ["processInstanceId"]);
         
-        // Fetch processTask (Active)
+        // 2. Busca apenas as atividades ativas do processo
         var c3 = DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST);
         var c4 = DatasetFactory.createConstraint("active", "true", "true", ConstraintType.MUST);
         var dsTask = DatasetFactory.getDataset("processTask", ["processTaskPK.processInstanceId", "choosedSequence", "colleagueId", "deadlineDate", "deadlineHour"], [c3, c4], null);
 
-        // Hash map for tasks
+        // 3. Monta um Dicionário (Map-Reduce) ultrarrápido em RAM para cruzar os dados
         var taskMap = {};
         if (dsTask && dsTask.rowsCount > 0) {
             for (var j = 0; j < dsTask.rowsCount; j++) {
@@ -48,7 +48,7 @@ function createDataset(fields, constraints, sortFields) {
             }
         }
 
-        // Loop process and build result
+        // 4. Junta as pontas e devolve pra Widget
         if (dsProcess && dsProcess.rowsCount > 0) {
             for (var i = 0; i < dsProcess.rowsCount; i++) {
                 var instId = String(dsProcess.getValue(i, "processInstanceId"));
