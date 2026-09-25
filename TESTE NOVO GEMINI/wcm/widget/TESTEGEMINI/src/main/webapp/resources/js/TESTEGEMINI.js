@@ -1251,13 +1251,68 @@
                 return [{ items: validos }]; 
             });
         } else {
-            requisicaoPrincipal = $.ajax({
-                url: CONFIG.urlSolicitacoes(processId, statusParaApi),
-                type: "GET",
-                data: params,
-                dataType: "json",
-                headers: { "Accept": "application/json" }
-            });
+            // ==== SOLUÇÃO AVANÇADA MAP-REDUCE: Utiliza o Dataset Fast ====
+            requisicaoPrincipal = $.Deferred();
+            try {
+                var c1 = DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST);
+                var constraintsDataset = [c1];
+                if (statusParaApi !== "") {
+                    constraintsDataset.push(DatasetFactory.createConstraint("status", statusParaApi, statusParaApi, ConstraintType.MUST));
+                }
+
+                DatasetFactory.getDataset("DS_PENALIDADES_FAST", null, constraintsDataset, null, {
+                    success: function(retorno) {
+                        if (!retorno || !retorno.values) {
+                            requisicaoPrincipal.resolve([{ items: [] }]);
+                            return;
+                        }
+
+                        // Mapeia o retorno do Dataset para o formato que a API V2 entregava,
+                        // para não quebrar o resto do código da Widget!
+                        var items = retorno.values.map(function(row) {
+                            // O status precisa voltar ao padrão da API V2 ("OPEN", "CANCELED", "COMPLETED")
+                            var apiStatus = "OPEN";
+                            if (row.status == "1") apiStatus = "CANCELED";
+                            else if (row.status == "2") apiStatus = "COMPLETED";
+                            
+                            // Cria objeto simulando o requester expandido
+                            var requester = null;
+                            if (row.requesterId && row.requesterId !== "null" && row.requesterId !== "") {
+                                requester = { code: row.requesterId, name: row.requesterId };
+                            }
+
+                            // Cria o Active Task
+                            var activeTasks = [];
+                            if (row.taskState && row.taskState !== "" && row.taskState !== "null") {
+                                activeTasks.push({
+                                    stateId: row.taskState,
+                                    choosedSequence: row.taskState,
+                                    assignee: row.assignee && row.assignee !== "null" ? { code: row.assignee, name: row.assignee } : null,
+                                    deadlineDate: row.deadline && row.deadline !== "null" ? row.deadline : null
+                                });
+                            }
+
+                            return {
+                                processInstanceId: row.processInstanceId,
+                                startDate: row.startDate !== "null" ? row.startDate : null,
+                                status: apiStatus,
+                                requester: requester,
+                                activeTasks: activeTasks,
+                                processId: row.processId !== "null" ? row.processId : processId
+                            };
+                        });
+
+                        requisicaoPrincipal.resolve([{ items: items }]);
+                    },
+                    error: function(err) {
+                        console.error("[TESTEGEMINI] Erro no DS_PENALIDADES_FAST:", err);
+                        requisicaoPrincipal.resolve([{ items: [] }]);
+                    }
+                });
+            } catch (e) {
+                console.error("[TESTEGEMINI] Exceção ao chamar DS_PENALIDADES_FAST:", e);
+                requisicaoPrincipal.resolve([{ items: [] }]);
+            }
         }
 
         $.when(requisicaoPrincipal, requisicaoTarefas).done(function (respSol, respTasks) {
