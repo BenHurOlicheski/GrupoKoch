@@ -22,7 +22,7 @@ function createDataset(fields, constraints, sortFields) {
 
         // Consulta super leve via JDBC
         var sql = "SELECT p.NUM_PROCES, p.START_DATE, p.STATUS, p.COD_MATR_REQUISIT, " +
-                  "t.NUM_SEQ_ESTADO, t.COD_MATR_ATRIB, t.DEADLINE_DATE, t.DEADLINE_HOUR, " +
+                  "p.NUM_SEQ_ESTADO, t.CD_MATRICULA, t.DEADLINE_DATE, t.DEADLINE_HOUR, " +
                   "a.NR_DOCUMENTO as FORM_RECORD_ID " +
                   "FROM PROCES_WORKFLOW p " +
                   "LEFT JOIN TAR_PROCES t ON p.COD_EMPRESA = t.COD_EMPRESA AND p.NUM_PROCES = t.NUM_PROCES AND t.LOG_ATIV = 1 " +
@@ -63,7 +63,7 @@ function createDataset(fields, constraints, sortFields) {
             var req = rs.getString("COD_MATR_REQUISIT");
             
             var state = rs.getString("NUM_SEQ_ESTADO") || "";
-            var asg = rs.getString("COD_MATR_ATRIB") || "";
+            var asg = rs.getString("CD_MATRICULA") || "";
             var dd = rs.getString("DEADLINE_DATE") || "";
             var dh = rs.getString("DEADLINE_HOUR") || "";
             var dead = "";

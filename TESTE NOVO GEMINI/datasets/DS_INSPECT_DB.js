@@ -8,7 +8,7 @@ function createDataset(fields, constraints, sortFields) {
         var context = new javax.naming.InitialContext();
         var dataSource = context.lookup("java:/jdbc/FluigDS");
         connection = dataSource.getConnection();
-        var sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'PROCES_WORKFLOW'";
+        var sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'TAR_PROCES'";
         statement = connection.prepareStatement(sql);
         rs = statement.executeQuery();
         while (rs.next()) {
