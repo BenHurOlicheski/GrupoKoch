@@ -34,7 +34,7 @@ function createDataset(fields, constraints, sortFields) {
 
         // Se passou processInstanceIdIn, descobre os cardIds cruzando ANEXO_PROCES
         if (processInstanceIdIn != "") {
-            var safeProcessIds = processInstanceIdIn.replace(/[^0-9,]/g, '');
+            var safeProcessIds = String(processInstanceIdIn).replace(/[^0-9,]/g, '');
             // Para ter a associacao da ocorrencia com o processInstanceId:
             // A gente busca o NUM_PROCES e o NR_DOCUMENTO
             // Retornaremos o NUM_PROCES na coluna "cardId" ou adicionamos uma nova coluna?
@@ -128,7 +128,7 @@ function createDataset(fields, constraints, sortFields) {
                 var sqlData = "";
                 if (isBulk) {
                     // Evita SQL Injection garantindo que só tem números e vírgulas
-                    var safeIds = cardIdIn.replace(/[^0-9,]/g, '');
+                    var safeIds = String(cardIdIn).replace(/[^0-9,]/g, '');
                     sqlData = "SELECT * FROM " + mlTable + " WHERE documentid IN (" + safeIds + ")";
                 } else {
                     sqlData = "SELECT * FROM " + mlTable + " WHERE documentid = " + cardId;
