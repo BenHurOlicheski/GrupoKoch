@@ -15,9 +15,12 @@
 <div class="widget-consulta-solicitacoes container-fluid fluig-style-guide" id="widgetConsultaSolicitacoes">
 
     <!-- ======================= MENSAGEM DE BOAS VINDAS ======================= -->
-    <div id="mensagemBoasVindas" style="margin-bottom: 25px; text-align: center;">
+    <div id="mensagemBoasVindas" style="margin-bottom: 25px; text-align: center; position: relative;">
         <h3 id="boasVindasTitulo" style="margin-top: 0; color: #005c9a; font-weight: 600; font-size: 24px;"></h3>
         <p style="color: #666; font-size: 15px; margin-bottom: 0;">Esta é a sua central de tarefas personalizada.</p>
+        <button id="btnTourGuiado" class="btn btn-default btn-sm" style="position: absolute; right: 0; top: 0; color: #4579E3; border-color: #4579E3;">
+            <i class="fluigicon fluigicon-info-sign"></i> Conhecer o Painel
+        </button>
     </div>
 
     <!-- ======================= BOTÕES SUPERIORES ======================= -->
@@ -228,6 +231,9 @@
 <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
 <!-- JSZip para compactação de anexos -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- Intro.js para Tour Guiado -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
 
 <!-- Script embutido no template para garantir a execução imediata dos filtros da legenda -->
 <script type="text/javascript">

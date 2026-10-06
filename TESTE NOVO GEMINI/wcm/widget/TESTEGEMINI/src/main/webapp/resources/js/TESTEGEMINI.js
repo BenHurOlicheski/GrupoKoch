@@ -197,11 +197,64 @@
         setTimeout(initWidget, 100);
     }
 
+    function iniciarTour() {
+        if (typeof introJs === "undefined") {
+            console.error("Intro.js não carregado!");
+            return;
+        }
+
+        var intro = introJs();
+        intro.setOptions({
+            nextLabel: 'Próximo',
+            prevLabel: 'Anterior',
+            skipLabel: 'Pular Tour',
+            doneLabel: 'Entendi!',
+            showProgress: true,
+            showBullets: false,
+            tooltipClass: 'custom-intro-tooltip',
+            steps: [
+                {
+                    intro: "👋 Olá! Bem-vindo à sua nova Central de Tarefas personalizada.<br><br>Fizemos diversas melhorias para deixar o seu painel mais rápido e inteligente. Vou te mostrar rapidamente o que mudou!"
+                },
+                {
+                    element: document.querySelector('#btnToggleBuscaAvancada'),
+                    intro: "🔍 <strong>Filtros Otimizados</strong><br>Aqui você pode abrir ou esconder o painel de buscas para liberar mais espaço na sua tela.",
+                    position: 'bottom'
+                },
+                {
+                    element: document.querySelector('.legenda-criticidades'),
+                    intro: "🚦 <strong>Filtro Rápido de Criticidade</strong><br>Você pode clicar direto nestas legendas para filtrar instantaneamente a tabela por criticidade (Alta, Média ou Baixa) sem precisar recarregar a tela.",
+                    position: 'left'
+                },
+                {
+                    element: document.querySelector('#tblResultados thead'),
+                    intro: "📊 <strong>Ordenação Inteligente</strong><br>Agora todas as colunas são ordenáveis! Basta clicar no título (como Data Inicial ou Responsável) para colocar em ordem crescente ou decrescente.",
+                    position: 'bottom'
+                },
+                {
+                    element: document.querySelector('#selItensPorPagina'),
+                    intro: "⚡ <strong>Mais Performance</strong><br>E aqui embaixo, você pode escolher quantas linhas quer ver por página na tela. O sistema agora carrega pacotes inteiros de uma só vez, então ficou super rápido!",
+                    position: 'top'
+                }
+            ]
+        });
+
+        if ($("#introJsCustomStyle").length === 0) {
+            $("<style id='introJsCustomStyle'>")
+                .prop("type", "text/css")
+                .html(".custom-intro-tooltip { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); } .introjs-button { border-radius: 4px !important; text-shadow: none !important; }")
+                .appendTo("head");
+        }
+
+        intro.start();
+    }
+
     function bindEventos() {
         initDragDropColunas();
         $(document).off("click", "#btnBuscar").on("click", "#btnBuscar", executarBusca);
         $(document).off("click", "#btnLimpar").on("click", "#btnLimpar", limparFiltros);
         $(document).off("click", "#btnExportarCsv").on("click", "#btnExportarCsv", exportarCsv);
+        $(document).off("click", "#btnTourGuiado").on("click", "#btnTourGuiado", iniciarTour);
 
         $(document).off("click", ".btn-baixar-todos-anexos").on("click", ".btn-baixar-todos-anexos", function() {
             var btn = $(this);
