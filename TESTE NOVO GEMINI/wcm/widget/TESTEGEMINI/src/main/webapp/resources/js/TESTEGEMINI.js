@@ -2820,9 +2820,13 @@
                 if (fId) {
                     formIds.push(fId);
                     mapFormToProcess[String(fId)] = sol.processInstanceId;
+                } else {
+                    console.warn("[TESTEGEMINI] Solicitacao " + sol.processInstanceId + " NAO tem formRecordId associado!");
                 }
             }
         });
+
+        console.log("[TESTEGEMINI] Buscando ocorrencias em LOTE para os formIds: ", formIds.join(","));
 
         if (formIds.length > 0) {
             var strIds = formIds.join(",");
@@ -2830,11 +2834,14 @@
                 DatasetFactory.createConstraint("cardIdIn", strIds, strIds, ConstraintType.MUST)
             ], null, {
                 success: function(dsOco) {
+                    console.log("[TESTEGEMINI] Retorno do DS_EXTRAIR_OCORRENCIA_V2: ", dsOco);
                     if (dsOco && dsOco.values && dsOco.values.length > 0) {
                         $.each(dsOco.values, function(idx, row) {
                             var formIdRetornado = row.cardId;
                             var instId = mapFormToProcess[String(formIdRetornado)]; // Descobre o processo que e dono deste form
                             var ocorrenciaBanco = row.ocorrencia;
+                            
+                            console.log("[TESTEGEMINI] Linha dataset -> formId: " + formIdRetornado + ", instId: " + instId + ", ocorrencia: " + ocorrenciaBanco);
                             
                             if (instId && ocorrenciaBanco && ocorrenciaBanco !== "" && ocorrenciaBanco !== "null") {
                                 var limpa = String(ocorrenciaBanco).replace(/^(RH\s+)?(ALTA|MEDIA|MÉDIA|BAIXA)\s+/i, "");
