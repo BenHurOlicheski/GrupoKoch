@@ -2809,33 +2809,51 @@
     function enriquecerLinhasVisiveis(itens, processId) {
         if (!itens || itens.length === 0 || !processId) return;
 
+        // OTIMIZACAO MAXIMA: Consulta a OCORRENCIA de TODAS as linhas da pagina em UMA UNICA chamada ao dataset!
+        var idsSemOcorrencia = [];
+        $.each(itens, function(i, sol) {
+            if (!sol.dadosFormularioVerificados) {
+                idsSemOcorrencia.push(sol.processInstanceId);
+                sol.dadosFormularioVerificados = true; // Marca como lido para nao buscar denovo
+            }
+        });
+
+        if (idsSemOcorrencia.length > 0) {
+            var strIds = idsSemOcorrencia.join(",");
+            DatasetFactory.getDataset("DS_EXTRAIR_OCORRENCIA_V2", null, [
+                DatasetFactory.createConstraint("processInstanceIdIn", strIds, strIds, ConstraintType.MUST)
+            ], null, {
+                success: function(dsOco) {
+                    if (dsOco && dsOco.values && dsOco.values.length > 0) {
+                        $.each(dsOco.values, function(idx, row) {
+                            var instId = row.cardId; // Nosso dataset customizado retorna o NUM_PROCES aqui
+                            var ocorrenciaBanco = row.ocorrencia;
+                            
+                            if (ocorrenciaBanco && ocorrenciaBanco !== "" && ocorrenciaBanco !== "null") {
+                                var limpa = String(ocorrenciaBanco).replace(/^(RH\s+)?(ALTA|MEDIA|MÉDIA|BAIXA)\s+/i, "");
+                                var finalOco = $.trim(limpa) || "-";
+                                
+                                // Pinta direto na tela
+                                var $tr = $("#tblResultadosBody tr[data-instance-id='" + instId + "']");
+                                $tr.find(".col-celula-ocorrencia").text(finalOco);
+                                
+                                // Salva no objeto para nao perder ao mudar de pagina
+                                $.each(itens, function(j, s) {
+                                    if (String(s.processInstanceId) === String(instId)) {
+                                        s.ocorrenciaExtracao = finalOco;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // Continua a logica original para as demais colunas (Tarefas, Responsavel, Cores)
         $.each(itens, function (i, sol) {
             var instId = sol.processInstanceId;
             var stChave = normalizarStatus(sol.status || sol.state).chaveFiltro;
-
-            // Dispara form para extrair a ocorrencia independentemente do status se não tiver sido extraído ainda
-            if (!sol.dadosFormularioVerificados) {
-                sol.dadosFormularioVerificados = true;
-                var possivelFormId = sol.formRecordId; // OTIMIZADO: Passa o formRecordId correto!
-                
-                consultarFormularioViaDataset(instId, processId, possivelFormId, null, function(camposDs) {
-                    if (camposDs && camposDs.length > 0) {
-                        var rdOco = "-";
-                        $.each(camposDs, function(idx, c) {
-                            if (c.nome === "rdOcorrencia" || c.nome === "ocorrencia") {
-                                rdOco = c.valor;
-                                return false;
-                            }
-                        });
-                        if (rdOco && rdOco !== "-") {
-                            var limpa = String(rdOco).replace(/^(RH\s+)?(ALTA|MEDIA|MÉDIA|BAIXA)\s+/i, "");
-                            sol.ocorrenciaExtracao = $.trim(limpa) || "-";
-                            var $tr = $("#tblResultadosBody tr[data-instance-id='" + instId + "']");
-                            $tr.find(".col-celula-ocorrencia").text(sol.ocorrenciaExtracao);
-                        }
-                    }
-                });
-            }
 
             // --- A PARTIR DAQUI: LÓGICA ORIGINAL DE TAREFAS/CORES INTOCADA ---
             // Se for finalizado ou cancelado, já temos o status resolvido
