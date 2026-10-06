@@ -43,8 +43,8 @@ function onSync(lastSyncDate) {
             
             var state = rs.getString("NUM_SEQ_ESTADO") || "";
             var asg = rs.getString("CD_MATRICULA") || "";
-            var dd = rs.getString("DEADLINE_DATE") || "";
-            var dh = rs.getString("DEADLINE_HOUR") || "";
+            var dd = rs.getString("DEADLINE") || "";
+            var dh = "";
             var dead = dd ? (dd + " " + dh) : "";
             
             var formId = rs.getString("FORM_RECORD_ID") || "";
