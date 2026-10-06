@@ -228,7 +228,7 @@
                 },
                 {
                     element: document.querySelector('#tblResultados thead'),
-                    intro: "📊 <strong>Ordenação Inteligente</strong><br>Agora todas as colunas são ordenáveis! Basta clicar no título (como Data Inicial ou Responsável) para colocar em ordem crescente ou decrescente.",
+                    intro: "📊 <strong>Ordenação e Movimentação</strong><br>Basta clicar no título para ordenar os valores. E o melhor: você pode <strong>clicar e arrastar</strong> qualquer coluna para mudar a ordem delas na tela do seu jeito! 🖱️↔️",
                     position: 'bottom'
                 },
                 {
