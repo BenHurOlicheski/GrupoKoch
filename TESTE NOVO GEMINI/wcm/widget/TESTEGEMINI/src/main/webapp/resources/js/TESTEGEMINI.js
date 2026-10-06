@@ -2809,27 +2809,34 @@
     function enriquecerLinhasVisiveis(itens, processId) {
         if (!itens || itens.length === 0 || !processId) return;
 
-        // OTIMIZACAO MAXIMA: Consulta a OCORRENCIA de TODAS as linhas da pagina em UMA UNICA chamada ao dataset!
-        var idsSemOcorrencia = [];
+        // OTIMIZACAO MAXIMA: Consulta a OCORRENCIA de TODAS as linhas usando o cardIdIn nativo do Fluig!
+        var formIds = [];
+        var mapFormToProcess = {};
+        
         $.each(itens, function(i, sol) {
             if (!sol.dadosFormularioVerificados) {
-                idsSemOcorrencia.push(sol.processInstanceId);
                 sol.dadosFormularioVerificados = true; // Marca como lido para nao buscar denovo
+                var fId = sol.formRecordId || sol.cardDocumentId || sol.documentId;
+                if (fId) {
+                    formIds.push(fId);
+                    mapFormToProcess[String(fId)] = sol.processInstanceId;
+                }
             }
         });
 
-        if (idsSemOcorrencia.length > 0) {
-            var strIds = idsSemOcorrencia.join(",");
+        if (formIds.length > 0) {
+            var strIds = formIds.join(",");
             DatasetFactory.getDataset("DS_EXTRAIR_OCORRENCIA_V2", null, [
-                DatasetFactory.createConstraint("processInstanceIdIn", strIds, strIds, ConstraintType.MUST)
+                DatasetFactory.createConstraint("cardIdIn", strIds, strIds, ConstraintType.MUST)
             ], null, {
                 success: function(dsOco) {
                     if (dsOco && dsOco.values && dsOco.values.length > 0) {
                         $.each(dsOco.values, function(idx, row) {
-                            var instId = row.cardId; // Nosso dataset customizado retorna o NUM_PROCES aqui
+                            var formIdRetornado = row.cardId;
+                            var instId = mapFormToProcess[String(formIdRetornado)]; // Descobre o processo que e dono deste form
                             var ocorrenciaBanco = row.ocorrencia;
                             
-                            if (ocorrenciaBanco && ocorrenciaBanco !== "" && ocorrenciaBanco !== "null") {
+                            if (instId && ocorrenciaBanco && ocorrenciaBanco !== "" && ocorrenciaBanco !== "null") {
                                 var limpa = String(ocorrenciaBanco).replace(/^(RH\s+)?(ALTA|MEDIA|MÉDIA|BAIXA)\s+/i, "");
                                 var finalOco = $.trim(limpa) || "-";
                                 
