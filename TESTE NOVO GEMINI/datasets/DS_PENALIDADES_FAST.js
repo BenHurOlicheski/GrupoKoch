@@ -11,96 +11,116 @@ function createDataset(fields, constraints, sortFields) {
     dataset.addColumn("formRecordId");
     dataset.addColumn("processId");
 
-    var connection = null;
-    var statement = null;
-    var rs = null;
-
-    try {
-        var context = new javax.naming.InitialContext();
-        var dataSource = context.lookup("java:/jdbc/FluigDS");
-        connection = dataSource.getConnection();
-
-        // Consulta super leve via JDBC
-        var sql = "SELECT p.NUM_PROCES, p.START_DATE, p.STATUS, p.COD_MATR_REQUISIT, " +
-                  "h.NUM_SEQ_ESTADO, t.CD_MATRICULA, t.DEADLINE, " +
-                  "a.NR_DOCUMENTO as FORM_RECORD_ID " +
-                  "FROM PROCES_WORKFLOW p " +
-                  "LEFT JOIN TAR_PROCES t ON p.COD_EMPRESA = t.COD_EMPRESA AND p.NUM_PROCES = t.NUM_PROCES AND t.LOG_ATIV = 1 " +
-                  "LEFT JOIN HISTOR_PROCES h ON h.COD_EMPRESA = t.COD_EMPRESA AND h.NUM_PROCES = t.NUM_PROCES AND h.NUM_SEQ_MOVTO = t.NUM_SEQ_MOVTO AND h.LOG_ATIV = 1 " +
-                  "LEFT JOIN ANEXO_PROCES a ON p.COD_EMPRESA = a.COD_EMPRESA AND p.NUM_PROCES = a.NUM_PROCES AND a.TP_ANEXO = 0 " +
-                  "WHERE p.COD_DEF_PROCES = 'PENALIDADES'";
-                  
-        // Filtro de status se houver
-        var statusFiltro = "";
-        if (constraints != null) {
-            for (var c = 0; c < constraints.length; c++) {
-                if (constraints[c].fieldName == "status") {
-                    statusFiltro = constraints[c].initialValue;
-                    sql += " AND p.STATUS = " + statusFiltro;
-                }
+    var processId = "PENALIDADES";
+    var statusParaApi = "";
+    
+    if (constraints != null) {
+        for (var c = 0; c < constraints.length; c++) {
+            if (constraints[c].fieldName == "status") {
+                statusParaApi = constraints[c].initialValue;
             }
         }
+    }
+
+    try {
+        var consProcess = [];
+        consProcess.push(DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST));
         
-        sql += " ORDER BY p.NUM_PROCES DESC";
-                  
-        statement = connection.prepareStatement(sql);
-        rs = statement.executeQuery();
+        // Em Dataset workflowProcess o status e: 0 (Aberto), 1 (Cancelado), 2 (Finalizado)
+        if (statusParaApi !== "") {
+            consProcess.push(DatasetFactory.createConstraint("status", statusParaApi, statusParaApi, ConstraintType.MUST));
+        }
         
-        var maxRows = 500; // Protecao para nao travar o browser
-        var qtd = 0;
-        
-        while (rs.next() && qtd < maxRows) {
-            var pid = rs.getString("NUM_PROCES");
-            var statusBanco = rs.getInt("STATUS"); // 0=OPEN, 1=CANCELED, 2=COMPLETED
+        var dsProcess = DatasetFactory.getDataset("workflowProcess", 
+            ["processInstanceId", "requesterId", "startDateProcess", "status", "cardDocumentId"], 
+            consProcess, 
+            ["processInstanceId;desc"]);
             
-            // Formatacao da data de inicio
-            var dtRaw = rs.getString("START_DATE"); // 2024-09-30 13:48:00
+        if (!dsProcess || dsProcess.rowsCount === 0) {
+            return dataset;
+        }
+        
+        // Coletar ate 500 para evitar timeout de memoria em base grande
+        var max = dsProcess.rowsCount > 500 ? 500 : dsProcess.rowsCount;
+        var pids = [];
+        var pidsMap = {};
+        
+        for (var i = 0; i < max; i++) {
+            var pid = String(dsProcess.getValue(i, "processInstanceId"));
+            pids.push(pid);
+            
+            var dtRaw = String(dsProcess.getValue(i, "startDateProcess") || ""); 
             var startDateFormatted = dtRaw;
-            if (dtRaw && dtRaw.length > 10) {
+            if (dtRaw.length > 10) {
                 var d = dtRaw.split(" ")[0].split("-");
                 if (d.length == 3) startDateFormatted = d[2] + "/" + d[1] + "/" + d[0] + " " + dtRaw.split(" ")[1].substring(0,5);
             }
             
-            var req = rs.getString("COD_MATR_REQUISIT");
-            
-            var state = rs.getString("NUM_SEQ_ESTADO") || "";
-            var asg = rs.getString("CD_MATRICULA") || "";
-            var dd = rs.getString("DEADLINE") || "";
-            var dh = ""; // DEADLINE já tem a hora no banco
-            var dead = "";
-            if (dd) {
-                var dp = dd.split("-");
-                if (dp.length == 3) dead = dp[2] + "/" + dp[1] + "/" + dp[0] + " " + (dh.substring(0,5));
-            }
-            
-            var formId = rs.getString("FORM_RECORD_ID") || "";
-            
-            // Conversao de status para formato amigavel do Widget
+            var st = String(dsProcess.getValue(i, "status"));
             var stateString = "OPEN";
-            if (statusBanco == 1) stateString = "CANCELED";
-            else if (statusBanco == 2) stateString = "COMPLETED";
-
+            if (st == "1") stateString = "CANCELED";
+            else if (st == "2") stateString = "COMPLETED";
+            
+            pidsMap[pid] = {
+                req: String(dsProcess.getValue(i, "requesterId") || ""),
+                date: startDateFormatted,
+                status: stateString,
+                formId: String(dsProcess.getValue(i, "cardDocumentId") || ""),
+                taskState: "",
+                assignee: "",
+                deadline: ""
+            };
+        }
+        
+        // Buscar tarefas ativas cruzando com array de IDs se possivel
+        // O processTask n suporta processInstanceIdIn, mas como filtramos processId e active, eh super rapido
+        var consTask = [];
+        consTask.push(DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST));
+        consTask.push(DatasetFactory.createConstraint("active", "true", "true", ConstraintType.MUST));
+        
+        var dsTask = DatasetFactory.getDataset("processTask", 
+            ["processTaskPK.processInstanceId", "choosedSequence", "colleagueId", "deadlineDate", "deadlineHour"], 
+            consTask, null);
+            
+        if (dsTask && dsTask.rowsCount > 0) {
+            for (var t = 0; t < dsTask.rowsCount; t++) {
+                var tPid = String(dsTask.getValue(t, "processTaskPK.processInstanceId"));
+                if (pidsMap[tPid]) {
+                    pidsMap[tPid].taskState = String(dsTask.getValue(t, "choosedSequence") || "");
+                    pidsMap[tPid].assignee = String(dsTask.getValue(t, "colleagueId") || "");
+                    
+                    var dd = String(dsTask.getValue(t, "deadlineDate") || "");
+                    var dh = String(dsTask.getValue(t, "deadlineHour") || "");
+                    var dead = "";
+                    if (dd) {
+                        var dp = dd.split("-");
+                        if (dp.length == 3) dead = dp[2] + "/" + dp[1] + "/" + dp[0] + " " + (dh.substring(0,5));
+                    }
+                    pidsMap[tPid].deadline = dead;
+                }
+            }
+        }
+        
+        // Montar linhas finais ordenadas
+        for (var i = 0; i < max; i++) {
+            var pid = pids[i];
+            var obj = pidsMap[pid];
             dataset.addRow([
-                String(pid),
-                String(req),
-                String(startDateFormatted),
-                String(stateString),
-                String(state),
-                String(asg),
-                String(dead),
+                pid,
+                obj.req,
+                obj.date,
+                obj.status,
+                obj.taskState,
+                obj.assignee,
+                obj.deadline,
                 "",
-                String(formId),
-                "PENALIDADES"
+                obj.formId,
+                processId
             ]);
-            qtd++;
         }
         
     } catch (e) {
         dataset.addRow(["ERRO", e.toString(), "", "", "", "", "", "", "", ""]);
-    } finally {
-        if (rs != null) try { rs.close(); } catch(ex){}
-        if (statement != null) try { statement.close(); } catch(ex){}
-        if (connection != null) try { connection.close(); } catch(ex){}
     }
     
     return dataset;
