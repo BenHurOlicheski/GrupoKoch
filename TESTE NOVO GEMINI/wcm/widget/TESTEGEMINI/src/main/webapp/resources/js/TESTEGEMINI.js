@@ -232,6 +232,11 @@
                     position: 'bottom'
                 },
                 {
+                    element: document.querySelector('#tblResultados tbody tr:first-child td:last-child') || document.querySelector('#tblResultados thead th:last-child'),
+                    intro: "🚀 <strong>Ações Rápidas</strong><br>A mágica acontece aqui! Você não precisa mais abrir tela por tela. É possível <strong>Assumir</strong>, <strong>Movimentar</strong> e baixar os <strong>Anexos</strong> direto pelos botões na tabela.",
+                    position: 'left'
+                },
+                {
                     element: document.querySelector('#selItensPorPagina'),
                     intro: "⚡ <strong>Mais Performance</strong><br>E aqui embaixo, você pode escolher quantas linhas quer ver por página na tela. O sistema agora carrega pacotes inteiros de uma só vez, então ficou super rápido!",
                     position: 'top'
