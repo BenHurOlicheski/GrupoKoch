@@ -1251,47 +1251,12 @@
                 return [{ items: validos }]; 
             });
         } else {
-            // OTIMIZACAO EXTREMA: Usamos o DS_PENALIDADES_FAST via JDBC ao inves da API V2 que trava o servidor!
-            var constraintsBusca = [];
-            if (processId !== "") {
-                constraintsBusca.push(DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST));
-            }
-            if (statusParaApi !== "") {
-                constraintsBusca.push(DatasetFactory.createConstraint("status", statusParaApi, statusParaApi, ConstraintType.MUST));
-            }
-            
-            requisicaoPrincipal = $.Deferred();
-            DatasetFactory.getDataset("DS_PENALIDADES_FAST", null, constraintsBusca, null, {
-                success: function(responseDs) {
-                    var itens = [];
-                    if (responseDs && responseDs.values && responseDs.values.length > 0) {
-                        $.each(responseDs.values, function(idx, row) {
-                            if (row.processInstanceId === "ERRO") {
-                                console.error("[DS_PENALIDADES_FAST]", row.requesterId);
-                                return;
-                            }
-                            itens.push({
-                                processInstanceId: row.processInstanceId,
-                                requester: { name: row.requesterId }, 
-                                startDate: row.startDate,
-                                status: row.status,
-                                state: row.taskState,
-                                formRecordId: row.formRecordId,
-                                activeTask: {
-                                    choosedSequence: row.taskState,
-                                    colleagueId: row.assignee,
-                                    deadlineDate: row.deadline,
-                                    deadlineHour: ""
-                                }
-                            });
-                        });
-                    }
-                    requisicaoPrincipal.resolve([{ items: itens }]);
-                },
-                error: function(err) {
-                    console.error("Erro no Dataset Fast", err);
-                    requisicaoPrincipal.resolve([{ items: [] }]);
-                }
+            requisicaoPrincipal = $.ajax({
+                url: CONFIG.urlSolicitacoes(processId, statusParaApi),
+                type: "GET",
+                data: params,
+                dataType: "json",
+                headers: { "Accept": "application/json" }
             });
         }
 
