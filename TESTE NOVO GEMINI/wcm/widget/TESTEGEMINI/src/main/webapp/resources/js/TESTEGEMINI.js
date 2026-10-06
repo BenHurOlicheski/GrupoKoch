@@ -242,7 +242,11 @@
         if ($("#introJsCustomStyle").length === 0) {
             $("<style id='introJsCustomStyle'>")
                 .prop("type", "text/css")
-                .html(".custom-intro-tooltip { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); } .introjs-button { border-radius: 4px !important; text-shadow: none !important; }")
+                .html(".custom-intro-tooltip { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 350px; } " +
+                      ".introjs-button { border-radius: 4px !important; text-shadow: none !important; font-size: 13px !important; } " +
+                      ".introjs-skipbutton { font-size: 12px !important; color: #888 !important; right: 10px !important; top: 10px !important; position: absolute !important; text-decoration: none !important; padding: 0 !important; } " +
+                      ".introjs-tooltiptext { font-size: 14px !important; padding: 20px 20px 10px 20px !important; line-height: 1.4 !important; } " +
+                      ".introjs-tooltip-header { padding-right: 30px !important; }")
                 .appendTo("head");
         }
 
