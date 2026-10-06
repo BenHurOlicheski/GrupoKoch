@@ -207,7 +207,7 @@
         intro.setOptions({
             nextLabel: 'Próximo',
             prevLabel: 'Anterior',
-            skipLabel: 'Pular Tour',
+            skipLabel: '✖',
             doneLabel: 'Entendi!',
             showProgress: true,
             showBullets: false,
@@ -242,10 +242,10 @@
         if ($("#introJsCustomStyle").length === 0) {
             $("<style id='introJsCustomStyle'>")
                 .prop("type", "text/css")
-                .html(".custom-intro-tooltip { border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 350px; } " +
-                      ".introjs-button { border-radius: 4px !important; text-shadow: none !important; font-size: 13px !important; } " +
-                      ".introjs-skipbutton { font-size: 12px !important; color: #888 !important; right: 10px !important; top: 10px !important; position: absolute !important; text-decoration: none !important; padding: 0 !important; } " +
-                      ".introjs-tooltiptext { font-size: 14px !important; padding: 20px 20px 10px 20px !important; line-height: 1.4 !important; } " +
+                .html(".custom-intro-tooltip { border-radius: 8px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; min-width: 450px !important; max-width: 550px !important; } " +
+                      ".introjs-button { border-radius: 4px !important; text-shadow: none !important; font-size: 14px !important; padding: 6px 12px !important; } " +
+                      ".introjs-skipbutton { font-size: 20px !important; color: #888 !important; right: 10px !important; top: 5px !important; position: absolute !important; text-decoration: none !important; padding: 0 !important; background: transparent !important; border: none !important; } " +
+                      ".introjs-tooltiptext { font-size: 15px !important; padding: 25px 20px 15px 20px !important; line-height: 1.5 !important; } " +
                       ".introjs-tooltip-header { padding-right: 30px !important; }")
                 .appendTo("head");
         }
