@@ -1253,6 +1253,9 @@
         } else {
             // OTIMIZACAO EXTREMA: Usamos o DS_PENALIDADES_FAST via JDBC ao inves da API V2 que trava o servidor!
             var constraintsBusca = [];
+            if (processId !== "") {
+                constraintsBusca.push(DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST));
+            }
             if (statusParaApi !== "") {
                 constraintsBusca.push(DatasetFactory.createConstraint("status", statusParaApi, statusParaApi, ConstraintType.MUST));
             }

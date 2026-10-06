@@ -11,11 +11,14 @@ function createDataset(fields, constraints, sortFields) {
     dataset.addColumn("formRecordId");
     dataset.addColumn("processId");
 
-    var processId = "PENALIDADES";
+    var processId = "";
     var statusParaApi = "";
     
     if (constraints != null) {
         for (var c = 0; c < constraints.length; c++) {
+            if (constraints[c].fieldName == "processId") {
+                processId = constraints[c].initialValue;
+            }
             if (constraints[c].fieldName == "status") {
                 statusParaApi = constraints[c].initialValue;
             }
