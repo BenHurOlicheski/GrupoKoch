@@ -34,6 +34,22 @@ function createDataset(fields, constraints, sortFields) {
         var ds = context.lookup("java:/jdbc/AppDS");
         connection = ds.getConnection();
         
+        // Primeiro, descobre o maior NUM_PROCES para limitar a busca e usar o ndice Primrio
+        // Isso evita FULL TABLE SCAN em bancos gigantescos na Produo!
+        var sqlMax = "SELECT MAX(NUM_PROCES) as MAX_NUM FROM PROCES_WORKFLOW";
+        var stmtMax = connection.prepareStatement(sqlMax);
+        var rsMax = stmtMax.executeQuery();
+        var maxNumProces = 0;
+        if (rsMax.next()) {
+            maxNumProces = rsMax.getInt("MAX_NUM");
+        }
+        rsMax.close();
+        stmtMax.close();
+
+        // Volta 15.000 solicitacoes atras para garantir que vai achar as 2000 ultimas de "PENALIDADES"
+        var minLimit = maxNumProces - 15000;
+        if (minLimit < 0) minLimit = 0;
+
         var sql = "SELECT " +
                   "  p.NUM_PROCES, " +
                   "  p.START_DATE, " +
@@ -46,7 +62,7 @@ function createDataset(fields, constraints, sortFields) {
                   "FROM PROCES_WORKFLOW p " +
                   "LEFT JOIN TAR_PROCES t ON p.NUM_PROCES = t.NUM_PROCES AND t.LOG_ATIV = 1 " +
                   "LEFT JOIN HISTOR_PROCES h ON t.NUM_PROCES = h.NUM_PROCES AND t.NUM_SEQ_MOVTO = h.NUM_SEQ_MOVTO AND h.LOG_ATIV = 1 " +
-                  "WHERE p.COD_DEF_PROCES = ?";
+                  "WHERE p.NUM_PROCES > ? AND p.COD_DEF_PROCES = ?";
 
         if (statusParaApi !== "") {
             sql += " AND p.STATUS = ?";
@@ -55,10 +71,11 @@ function createDataset(fields, constraints, sortFields) {
         sql += " ORDER BY p.NUM_PROCES DESC LIMIT 2000";
 
         stmt = connection.prepareStatement(sql);
-        stmt.setString(1, processId);
+        stmt.setInt(1, minLimit);
+        stmt.setString(2, processId);
         
         if (statusParaApi !== "") {
-            stmt.setInt(2, parseInt(statusParaApi, 10));
+            stmt.setInt(3, parseInt(statusParaApi, 10));
         }
 
         rs = stmt.executeQuery();
