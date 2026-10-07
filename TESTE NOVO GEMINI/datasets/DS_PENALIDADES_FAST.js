@@ -11,120 +11,87 @@ function createDataset(fields, constraints, sortFields) {
     dataset.addColumn("formRecordId");
     dataset.addColumn("processId");
 
-    var processId = "";
+    var processId = "PENALIDADES"; // Pode ser sobrescrito pelo filter
     var statusParaApi = "";
     
     if (constraints != null) {
         for (var c = 0; c < constraints.length; c++) {
-            if (constraints[c].fieldName == "processId") {
-                processId = constraints[c].initialValue;
-            }
             if (constraints[c].fieldName == "status") {
-                statusParaApi = constraints[c].initialValue;
+                statusParaApi = String(constraints[c].initialValue);
+            }
+            if (constraints[c].fieldName == "processId") {
+                processId = String(constraints[c].initialValue);
             }
         }
     }
 
     try {
-        var consProcess = [];
-        consProcess.push(DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST));
+        var context = new javax.naming.InitialContext();
+        var ds = context.lookup("java:/jdbc/AppDS");
+        var connection = ds.getConnection();
         
-        // Em Dataset workflowProcess o status e: 0 (Aberto), 1 (Cancelado), 2 (Finalizado)
+        var sql = "SELECT " +
+                  "  p.NUM_PROCES, " +
+                  "  p.START_DATE, " +
+                  "  p.STATUS, " +
+                  "  p.COD_MATR_REQUISIT, " +
+                  "  p.NR_DOCUMENTO_CARD, " +
+                  "  t.CD_MATRICULA AS RESPONSAVEL, " +
+                  "  t.DEADLINE, " +
+                  "  h.NUM_SEQ_ESTADO " +
+                  "FROM PROCES_WORKFLOW p " +
+                  "LEFT JOIN TAR_PROCES t ON p.NUM_PROCES = t.NUM_PROCES AND t.LOG_ATIV = 1 " +
+                  "LEFT JOIN HISTOR_PROCES h ON t.NUM_PROCES = h.NUM_PROCES AND t.NUM_SEQ_MOVTO = h.NUM_SEQ_MOVTO AND h.LOG_ATIV = 1 " +
+                  "WHERE p.COD_DEF_PROCES = ?";
+
         if (statusParaApi !== "") {
-            consProcess.push(DatasetFactory.createConstraint("status", statusParaApi, statusParaApi, ConstraintType.MUST));
+            sql += " AND p.STATUS = ?";
         }
         
-        var dsProcess = DatasetFactory.getDataset("workflowProcess", 
-            ["processInstanceId", "requesterId", "startDateProcess", "status", "cardDocumentId"], 
-            consProcess, 
-            ["processInstanceId;desc"]);
-            
-        if (!dsProcess || dsProcess.rowsCount === 0) {
-            return dataset;
+        sql += " ORDER BY p.NUM_PROCES DESC LIMIT 2000";
+
+        var stmt = connection.prepareStatement(sql);
+        stmt.setString(1, processId);
+        
+        if (statusParaApi !== "") {
+            stmt.setInt(2, parseInt(statusParaApi, 10));
         }
+
+        var rs = stmt.executeQuery();
         
-        // Coletar ate 500 para evitar timeout de memoria em base grande
-        var max = dsProcess.rowsCount > 500 ? 500 : dsProcess.rowsCount;
-        var pids = [];
-        var pidsMap = {};
-        
-        for (var i = 0; i < max; i++) {
-            var pid = String(dsProcess.getValue(i, "processInstanceId"));
-            pids.push(pid);
+        var dateFormatter = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        while (rs.next()) {
+            var numProces = String(rs.getInt("NUM_PROCES"));
+            var req = String(rs.getString("COD_MATR_REQUISIT") || "");
+            var statusInt = rs.getInt("STATUS");
+            var stStr = "OPEN";
+            if (statusInt === 1) stStr = "CANCELED";
+            else if (statusInt === 2) stStr = "COMPLETED";
             
-            var dtRaw = String(dsProcess.getValue(i, "startDateProcess") || ""); 
-            var startDateFormatted = dtRaw;
-            if (dtRaw.length > 10) {
-                var d = dtRaw.split(" ")[0].split("-");
-                if (d.length == 3) startDateFormatted = d[2] + "/" + d[1] + "/" + d[0] + " " + dtRaw.split(" ")[1].substring(0,5);
-            }
+            var startDateRaw = rs.getTimestamp("START_DATE");
+            var sd = startDateRaw ? dateFormatter.format(startDateRaw) : "";
             
-            var st = String(dsProcess.getValue(i, "status"));
-            var stateString = "OPEN";
-            if (st == "1") stateString = "CANCELED";
-            else if (st == "2") stateString = "COMPLETED";
+            var deadlineRaw = rs.getTimestamp("DEADLINE");
+            var dead = deadlineRaw ? dateFormatter.format(deadlineRaw) : "";
             
-            pidsMap[pid] = {
-                req: String(dsProcess.getValue(i, "requesterId") || ""),
-                date: startDateFormatted,
-                status: stateString,
-                formId: String(dsProcess.getValue(i, "cardDocumentId") || ""),
-                taskState: "",
-                assignee: "",
-                deadline: ""
-            };
-        }
-        
-        // Buscar tarefas ativas cruzando com array de IDs se possivel
-        // O processTask n suporta processInstanceIdIn, mas como filtramos processId e active, eh super rapido
-        var consTask = [];
-        consTask.push(DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST));
-        consTask.push(DatasetFactory.createConstraint("active", "true", "true", ConstraintType.MUST));
-        
-        var dsTask = DatasetFactory.getDataset("processTask", 
-            ["processTaskPK.processInstanceId", "choosedSequence", "colleagueId", "deadlineDate", "deadlineHour"], 
-            consTask, null);
+            var resp = String(rs.getString("RESPONSAVEL") || "");
+            var taskSt = String(rs.getString("NUM_SEQ_ESTADO") || "");
             
-        if (dsTask && dsTask.rowsCount > 0) {
-            for (var t = 0; t < dsTask.rowsCount; t++) {
-                var tPid = String(dsTask.getValue(t, "processTaskPK.processInstanceId"));
-                if (pidsMap[tPid]) {
-                    pidsMap[tPid].taskState = String(dsTask.getValue(t, "choosedSequence") || "");
-                    pidsMap[tPid].assignee = String(dsTask.getValue(t, "colleagueId") || "");
-                    
-                    var dd = String(dsTask.getValue(t, "deadlineDate") || "");
-                    var dh = String(dsTask.getValue(t, "deadlineHour") || "");
-                    var dead = "";
-                    if (dd) {
-                        var dp = dd.split("-");
-                        if (dp.length == 3) dead = dp[2] + "/" + dp[1] + "/" + dp[0] + " " + (dh.substring(0,5));
-                    }
-                    pidsMap[tPid].deadline = dead;
-                }
-            }
-        }
-        
-        // Montar linhas finais ordenadas
-        for (var i = 0; i < max; i++) {
-            var pid = pids[i];
-            var obj = pidsMap[pid];
+            var formId = String(rs.getInt("NR_DOCUMENTO_CARD") || "");
+            
             dataset.addRow([
-                pid,
-                obj.req,
-                obj.date,
-                obj.status,
-                obj.taskState,
-                obj.assignee,
-                obj.deadline,
-                "",
-                obj.formId,
-                processId
+                numProces, req, sd, stStr, taskSt, resp, dead, "", formId, processId
             ]);
         }
+        
+        rs.close();
+        stmt.close();
+        connection.close();
         
     } catch (e) {
         dataset.addRow(["ERRO", e.toString(), "", "", "", "", "", "", "", ""]);
     }
-    
+
     return dataset;
 }

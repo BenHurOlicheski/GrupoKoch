@@ -1313,12 +1313,41 @@
                 return [{ items: validos }]; 
             });
         } else {
-            requisicaoPrincipal = $.ajax({
-                url: CONFIG.urlSolicitacoes(processId, statusParaApi),
-                type: "GET",
-                data: params,
-                dataType: "json",
-                headers: { "Accept": "application/json" }
+            var constraintsBusca = [];
+            if (processId !== "") {
+                constraintsBusca.push(DatasetFactory.createConstraint("processId", processId, processId, ConstraintType.MUST));
+            }
+            if (statusParaApi !== "") {
+                constraintsBusca.push(DatasetFactory.createConstraint("status", statusParaApi, statusParaApi, ConstraintType.MUST));
+            }
+            requisicaoPrincipal = $.Deferred();
+            DatasetFactory.getDataset("DS_PENALIDADES_FAST", null, constraintsBusca, null, {
+                success: function(ds) {
+                    var items = [];
+                    if (ds && ds.values && ds.values.length > 0 && ds.values[0].processInstanceId !== "ERRO") {
+                        for (var i = 0; i < ds.values.length; i++) {
+                            items.push({
+                                processInstanceId: ds.values[i].processInstanceId,
+                                requesterId: ds.values[i].requesterId,
+                                startDate: ds.values[i].startDate,
+                                status: ds.values[i].status,
+                                activeTask: {
+                                    sequence: ds.values[i].taskState,
+                                    assignee: ds.values[i].assignee,
+                                    deadline: ds.values[i].deadline
+                                },
+                                formRecordId: ds.values[i].formRecordId
+                            });
+                        }
+                    } else if (ds && ds.values && ds.values.length > 0 && ds.values[0].processInstanceId === "ERRO") {
+                        console.error("[DS_PENALIDADES_FAST] ERRO SQL:", ds.values[0].requesterId);
+                    }
+                    requisicaoPrincipal.resolve([{ items: items }]);
+                },
+                error: function(e) {
+                    console.error("Erro Dataset DS_PENALIDADES_FAST", e);
+                    requisicaoPrincipal.resolve([{ items: [] }]);
+                }
             });
         }
 
