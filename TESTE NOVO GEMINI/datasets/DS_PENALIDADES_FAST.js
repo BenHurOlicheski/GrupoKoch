@@ -25,10 +25,14 @@ function createDataset(fields, constraints, sortFields) {
         }
     }
 
+    var connection = null;
+    var stmt = null;
+    var rs = null;
+
     try {
         var context = new javax.naming.InitialContext();
         var ds = context.lookup("java:/jdbc/AppDS");
-        var connection = ds.getConnection();
+        connection = ds.getConnection();
         
         var sql = "SELECT " +
                   "  p.NUM_PROCES, " +
@@ -50,14 +54,14 @@ function createDataset(fields, constraints, sortFields) {
         
         sql += " ORDER BY p.NUM_PROCES DESC LIMIT 2000";
 
-        var stmt = connection.prepareStatement(sql);
+        stmt = connection.prepareStatement(sql);
         stmt.setString(1, processId);
         
         if (statusParaApi !== "") {
             stmt.setInt(2, parseInt(statusParaApi, 10));
         }
 
-        var rs = stmt.executeQuery();
+        rs = stmt.executeQuery();
         
         var dateFormatter = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
 
@@ -78,19 +82,24 @@ function createDataset(fields, constraints, sortFields) {
             var resp = String(rs.getString("RESPONSAVEL") || "");
             var taskSt = String(rs.getString("NUM_SEQ_ESTADO") || "");
             
-            var formId = String(rs.getInt("NR_DOCUMENTO_CARD") || "");
+            var formId = "0";
+            try {
+                formId = String(rs.getInt("NR_DOCUMENTO_CARD") || "0");
+            } catch(e2) {
+                // Ignore if column missing
+            }
             
             dataset.addRow([
                 numProces, req, sd, stStr, taskSt, resp, dead, "", formId, processId
             ]);
         }
         
-        rs.close();
-        stmt.close();
-        connection.close();
-        
     } catch (e) {
         dataset.addRow(["ERRO", e.toString(), "", "", "", "", "", "", "", ""]);
+    } finally {
+        if (rs != null) try { rs.close(); } catch(e) {}
+        if (stmt != null) try { stmt.close(); } catch(e) {}
+        if (connection != null) try { connection.close(); } catch(e) {}
     }
 
     return dataset;
